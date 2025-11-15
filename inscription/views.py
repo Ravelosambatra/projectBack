@@ -1,0 +1,204 @@
+from django.shortcuts import render
+from rest_framework import viewsets
+from .models import Inscription
+from .serializers import InscriptionSerializer
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.db.models.functions import ExtractMonth
+from django.db.models import Count, Q  
+from django.utils import timezone
+from service.models import Service
+from rest_framework import status
+from django.core.mail import send_mail
+from django.conf import settings
+import threading
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from rest_framework.permissions import AllowAny
+
+def send_confirmation_email(inscription):
+    try:
+        # Récupérer la catégorie et les services
+        categorie = inscription.categorie.nom if inscription.categorie else "N/A"
+        services = inscription.service.all()
+
+        # Construire la liste HTML des services
+        services_html = "<ul>"
+        for s in services:
+            services_html += f"<li>{s.nom}</li>"
+        services_html += "</ul>"
+
+        # Contenu HTML de l'email
+        subject = "Bienvenu ! Votre inscription est en cours de validation"
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = [inscription.emailClient]
+
+        html_content = f"""
+        <html>
+        <body>
+            <p>Bonjour <Strong>{inscription.nomClient} {inscription.prenomClient}</strong>,</p>
+            <p>Votre inscription du {inscription.dateInscription.strftime("%d-%m-%y à %H:%M:%S")} a été bien reçue avec succès et est actuellement en cours de traitement par notre Responsable !</p>
+            <p>Résumé : </p>
+            <p><strong>Catégorie choisie :</strong> {categorie}</p>
+            <p><strong>Service(s) choisi(s) :</strong></p>
+            {services_html}
+            <p>Si vous avez des questions urgentes, n'hesitez surtout pas à répondre à ce courriel ou à nous contacter au 0342889956/0329320129. </p>
+            <p>Cordialement,</p>
+            <p>L'équipe STEPIC.</p>
+        </body>
+        </html>
+        """
+
+        # Création et envoi de l'email HTML
+        email = EmailMultiAlternatives(subject, "", from_email, to_email)
+        email.attach_alternative(html_content, "text/html")
+        email.send(fail_silently=False)
+
+        print("Email de confirmation envoyé avec succès !")
+
+    except Exception as e:
+        print("Erreur lors de l'envoi de l'email :", e)
+
+
+def send_admin_notification(inscription):
+    """Avertit l'administrateur qu'une nouvelle inscription a été reçue."""
+    try:
+        categorie = inscription.categorie.nom if inscription.categorie else "N/A"
+        services = inscription.service.all()
+        services_list = ", ".join([s.nom for s in services]) or "Aucun"
+
+        subject = f"🆕 Nouvelle inscription reçue - {inscription.nomClient} {inscription.prenomClient}"
+        from_email = settings.DEFAULT_FROM_EMAIL
+        admin_email = getattr(settings, "ADMIN_EMAIL", settings.DEFAULT_FROM_EMAIL)
+        to_email = [admin_email]
+
+        html_content = f"""
+        <html>
+        <body>
+            <h2>Nouvelle inscription reçue sur Stepic ✅</h2>
+            <p><strong>Nom :</strong> {inscription.nomClient} {inscription.prenomClient}</p>
+            <p><strong>Email :</strong> {inscription.emailClient}</p>
+            <p><strong>Date :</strong> {inscription.dateInscription.strftime("%d-%m-%Y à %H:%M:%S")}</p>
+            <p><strong>Catégorie :</strong> {categorie}</p>
+            <p><strong>Service(s) choisi(s) :</strong> {services_list}</p>
+            <hr>
+            <p>Connectez-vous à votre tableau d'administration pour valider ou refuser cette inscription.</p>
+            <p><em>— Notification automatique Stepic</em></p>
+        </body>
+        </html>
+        """
+
+        email = EmailMultiAlternatives(subject, "", from_email, to_email)
+        email.attach_alternative(html_content, "text/html")
+        email.send(fail_silently=False)
+        print("📩 Email d’alerte envoyé à l’administrateur !")
+
+    except Exception as e:
+        print("❌ Erreur lors de l'envoi de l'email admin :", e)
+
+
+class InscriptionViewSet(viewsets.ModelViewSet):
+    queryset = Inscription.objects.all()
+    serializer_class = InscriptionSerializer
+    permission_classes = [AllowAny]
+
+    def perform_create(self, serializer):
+        inscription = serializer.save()
+        threading.Thread(target=send_confirmation_email, args=(inscription,)).start()
+        threading.Thread(target=send_admin_notification, args=(inscription,)).start()
+
+    @action(detail=False, methods=['get'], url_path='count')
+    def totalInscritpion(self, request):
+        nb_total = Inscription.objects.count()
+        return Response({'total_inscription': nb_total })
+    
+    @action(detail=False, methods=['get'], url_path='by_month')
+    def evolution_par_mois(self, request):
+        annee = request.query_params.get('annee')
+
+        if annee is None:
+            annee = timezone.now().year
+        else :
+            annee = int(annee)
+
+        inscriptions = (
+            Inscription.objects.filter(dateInscription__year=annee)
+            .annotate(mois=ExtractMonth('dateInscription'))
+            .values('mois')
+            .annotate(total=Count('id'))
+        )
+
+        nom_mois = ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre",
+                    "Octobre", "Novembre", "Décembre"]
+        
+        data = []
+        for i, nom in enumerate(nom_mois, start=1):
+            nb = next((c["total"] for c in inscriptions if c["mois"] == i), 0)
+            data.append({
+                "libelle": nom,
+                "nb_inscription": nb
+            })
+
+        return Response({"annee": annee, "inscriptions": data})
+    
+    @action(detail=False, methods=['get'], url_path='by_service')
+    def par_service(self, request):
+        services_concerne = Service.objects.filter(button__iexact="S'inscrire")
+
+        stats = (
+            Inscription.objects.filter(service__in=services_concerne)
+            .values('service__nom')
+            .annotate(nb_inscriptions=Count('id'))
+            .order_by('service__nom')
+        )
+
+        data = [
+            {"service": s["service__nom"], "nbInscriptions": s["nb_inscriptions"]}
+            for s in stats
+        ]
+
+        return Response(data)
+    
+    @action(detail=True, methods=['patch', 'put', 'post'], url_path='valider')
+    def valider_commande(self, request, pk=None):
+        try:
+            inscription = self.get_object()
+            inscription.statut = True
+            inscription.save()
+
+            #threading.Thread(target=send_confirmation_email, args=(inscription,)).start()
+
+            return Response(
+                {'message': 'Inscription validée et email envoyé en arrière-plan ✅'},
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            print("Erreur lors de la validation :", e)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+    @action(detail=False, methods=['get'], url_path='count-by-service')
+    def count_by_service(self, request):
+
+        services = (
+            Service.objects.filter(
+                button__iexact="S'inscrire"
+            )
+            .filter(
+                Q(nom__icontains="française")
+                | Q(nom__icontains="anglaise")
+                | Q(nom__icontains="allemande")
+                | Q(nom__icontains="chinoise")
+                | Q(nom__icontains="informatique")
+            )
+            .annotate(nb_inscriptions=Count('inscriptions'))
+            .values('nom', 'nb_inscriptions')
+        )
+
+            # Reformater pour ton frontend
+        data = [
+            {"name": s["nom"], "value": s["nb_inscriptions"]}
+            for s in services
+        ]
+
+        return Response({"dataServices": data})
