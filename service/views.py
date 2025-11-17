@@ -25,9 +25,13 @@ class CategorieViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         file = request.FILES.get("image")
         if file:
-            url = upload_file(file)
-            request.data["image"] = url
-        return super().update(request, *args, **kwargs)    
+            try:
+                url = upload_file(file)
+                request.data["image"] = url
+            except Exception as e:
+                print("❌ Erreur upload Supabase:", e)
+                return Response({"error": str(e)}, status=500)
+        return super().update(request, *args, **kwargs)
 
     @action(detail=False, methods=['get'], url_path='with_commande')
     def commande(self, request):
