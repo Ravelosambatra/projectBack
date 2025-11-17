@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from django.core.files.storage import default_storage
 from utils.supabase_client import upload_file
 
 class CategorieViewSet(viewsets.ModelViewSet):
@@ -34,6 +35,12 @@ class CategorieViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
     """
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        if instance.image:
+            print("Path stocké :", instance.image.name)
+            print("URL :", default_storage.url(instance.image.name))
 
     @action(detail=False, methods=['get'], url_path='with_commande')
     def commande(self, request):
@@ -71,6 +78,12 @@ class ServiceViewSet(viewsets.ModelViewSet):
                 return Response({"error": str(e)}, status=500)
         return super().update(request, *args, **kwargs)
     """
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        if instance.image:
+            print("Path stocké :", instance.image.name)
+            print("URL :", default_storage.url(instance.image.name))
 
     @action(detail=False, methods=['get'], url_path='by_categorie/(?P<categorie_id>[^/.]+)')
     def by_categorie(self, request, categorie_id=None):
