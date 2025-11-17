@@ -34,7 +34,7 @@ class CategorieViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
     """
-            
+
     @action(detail=False, methods=['get'], url_path='with_commande')
     def commande(self, request):
         categories = Categorie.objects.filter(button__iexact = "Commander")
@@ -52,7 +52,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
     serializer_class = ServiceSerializer
     permission_classes = [AllowAny]
 
-    #uploder un image
+    """""
     def create(self, request, *args, **kwargs):
         file = request.FILES.get("image")  # Nom du champ dans le form
         if file:
@@ -70,7 +70,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
                 print("❌ Erreur upload Supabase:", e)
                 return Response({"error": str(e)}, status=500)
         return super().update(request, *args, **kwargs)
-
+    """
 
     @action(detail=False, methods=['get'], url_path='by_categorie/(?P<categorie_id>[^/.]+)')
     def by_categorie(self, request, categorie_id=None):
