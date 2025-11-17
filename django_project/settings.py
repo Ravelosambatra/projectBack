@@ -68,7 +68,8 @@ INSTALLED_APPS = [
     'messag',
     'presse',
     'equipe',
-    'rest_framework_simplejwt'
+    'rest_framework_simplejwt',
+    'storages',
 ]
 
 AUTH_USER_MODEL = "utilisateur.Utilisateur"
@@ -101,8 +102,8 @@ ROOT_URLCONF = 'django_project.urls'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#MEDIA_URL = '/media/'
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -139,6 +140,39 @@ WSGI_APPLICATION = 'django_project.wsgi.application'
 DATABASES = {
     'default' : dj_database_url.parse(env('DATABASE_URL'))
 }
+
+# 1. Lecture des variables depuis Render
+AWS_ACCESS_KEY_ID = os.environ.get('SUPABASE_S3_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('SUPABASE_S3_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get("SUPABASE_BUCKET_NAME")
+AWS_ENDPOINT_URL = os.environ.get('SUPABASE_S3_ENDPOINT_URL')
+
+# 2. Configuration S3 (Protocole)
+AWS_S3_REGION_NAME = 'eu-west-1' 
+AWS_QUERYSTRING_AUTH = False
+AWS_DEFAULT_ACL = 'public-read' # Sauf si votre bucket est privé
+
+# 3. Définition du stockage par défaut
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            "access_key": AWS_ACCESS_KEY_ID,
+            "secret_key": AWS_SECRET_ACCESS_KEY,
+            "bucket_name": AWS_STORAGE_BUCKET_NAME,
+            "endpoint_url": AWS_ENDPOINT_URL, # C'est le secret pour Supabase
+            "region_name": AWS_S3_REGION_NAME,
+            "querystring_auth": AWS_QUERYSTRING_AUTH,
+            "default_acl": AWS_DEFAULT_ACL,
+        }
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    }
+}
+
+# 4. URL de base pour les fichiers Média
+MEDIA_URL = f'{AWS_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

@@ -14,7 +14,7 @@ class CategorieViewSet(viewsets.ModelViewSet):
     serializer_class = CategorieSerializer
     permission_classes = [AllowAny]
 
-    #uploder un image
+    """""
     def create(self, request, *args, **kwargs):
         file = request.FILES.get("image")  # Nom du champ dans le form
         if file:
@@ -33,6 +33,8 @@ class CategorieViewSet(viewsets.ModelViewSet):
                 return Response({"error": str(e)}, status=500)
         return super().update(request, *args, **kwargs)
 
+    """
+            
     @action(detail=False, methods=['get'], url_path='with_commande')
     def commande(self, request):
         categories = Categorie.objects.filter(button__iexact = "Commander")
