@@ -17,14 +17,17 @@ def upload_file(file):
 
     file_bytes = file.read()
 
+    # Upload vers Supabase
     res = supabase.storage.from_(SUPABASE_BUCKET).upload(
         path=file_name,
         file=file_bytes,
         file_options={"content-type": file.content_type},
     )
 
-    if "error" in res:
-        raise Exception(res["error"])
+    # Vérifie si l'upload a réussi
+    if res.error:
+        raise Exception(res.error.message)
 
+    # Retourne l'URL publique
     url = supabase.storage.from_(SUPABASE_BUCKET).get_public_url(file_name)
     return url
