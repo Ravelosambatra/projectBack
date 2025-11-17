@@ -153,6 +153,7 @@ AWS_QUERYSTRING_AUTH = False
 AWS_DEFAULT_ACL = 'public-read' # Sauf si votre bucket est privé
 
 # 3. Définition du stockage par défaut
+"""""
 STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3.S3Storage",
@@ -170,7 +171,9 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     }
 }
+"""
 
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 # 4. URL de base pour les fichiers Média
 MEDIA_URL = f'{AWS_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/'
 
