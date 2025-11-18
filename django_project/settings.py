@@ -148,6 +148,8 @@ AWS_STORAGE_BUCKET_NAME = os.environ.get("SUPABASE_BUCKET_NAME")
 AWS_ENDPOINT_URL = os.environ.get('SUPABASE_S3_ENDPOINT_URL')
 AWS_ENDPOINT_PUBLIC_URL = os.environ.get('SUPABASE_PUBLIC_URL')
 
+AWS_S3_CUSTOM_DOMAIN = f'{os.environ.get("SUPABASE_URL")}/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}/'
+
 # 2. Configuration S3 (Protocole)
 AWS_S3_REGION_NAME = 'eu-west-1' 
 AWS_QUERYSTRING_AUTH = False
@@ -165,6 +167,7 @@ STORAGES = {
             "endpoint_url": AWS_ENDPOINT_URL, # C'est le secret pour Supabase
             "region_name": AWS_S3_REGION_NAME,
             "querystring_auth": AWS_QUERYSTRING_AUTH,
+            "custom_domain" : AWS_S3_CUSTOM_DOMAIN,
             "default_acl": AWS_DEFAULT_ACL,
         }
     },
@@ -176,7 +179,7 @@ STORAGES = {
 
 #DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 # 4. URL de base pour les fichiers Média
-MEDIA_URL = f'{os.environ.get("SUPABASE_URL")}/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}/'
+MEDIA_URL = AWS_S3_CUSTOM_DOMAIN
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
