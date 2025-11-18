@@ -179,7 +179,7 @@ STORAGES = {
 
 #DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 # 4. URL de base pour les fichiers Média
-MEDIA_URL = AWS_S3_CUSTOM_DOMAIN
+MEDIA_URL = f'{AWS_S3_CUSTOM_DOMAIN}/'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
