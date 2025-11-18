@@ -157,7 +157,7 @@ AWS_DEFAULT_ACL = 'public-read' # Sauf si votre bucket est privé
 
 STORAGES = {
     "default": {
-        "BACKEND": "storages.backends.s3.S3Storage",
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
         "OPTIONS": {
             "access_key": AWS_ACCESS_KEY_ID,
             "secret_key": AWS_SECRET_ACCESS_KEY,
@@ -176,7 +176,7 @@ STORAGES = {
 
 #DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 # 4. URL de base pour les fichiers Média
-MEDIA_URL = f'{AWS_ENDPOINT_PUBLIC_URL}/{AWS_STORAGE_BUCKET_NAME}/'
+MEDIA_URL = f'{os.environ.get("SUPABASE_URL")}/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}/'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
