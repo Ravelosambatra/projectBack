@@ -15,27 +15,6 @@ class CategorieViewSet(viewsets.ModelViewSet):
     serializer_class = CategorieSerializer
     permission_classes = [AllowAny]
 
-    """""
-    def create(self, request, *args, **kwargs):
-        file = request.FILES.get("image")  # Nom du champ dans le form
-        if file:
-            url = upload_file(file)
-            request.data["image"] = url  # Remplace le fichier par l'URL Supabase
-        return super().create(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        file = request.FILES.get("image")
-        if file:
-            try:
-                url = upload_file(file)
-                request.data["image"] = url
-            except Exception as e:
-                print("❌ Erreur upload Supabase:", e)
-                return Response({"error": str(e)}, status=500)
-        return super().update(request, *args, **kwargs)
-
-    """
-
     def perform_create(self, serializer):
         instance = serializer.save()
         if instance.image:
@@ -59,25 +38,6 @@ class ServiceViewSet(viewsets.ModelViewSet):
     serializer_class = ServiceSerializer
     permission_classes = [AllowAny]
 
-    """""
-    def create(self, request, *args, **kwargs):
-        file = request.FILES.get("image")  # Nom du champ dans le form
-        if file:
-            url = upload_file(file)
-            request.data["image"] = url  # Remplace le fichier par l'URL Supabase
-        return super().create(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        file = request.FILES.get("image")
-        if file:
-            try:
-                url = upload_file(file)
-                request.data["image"] = url
-            except Exception as e:
-                print("❌ Erreur upload Supabase:", e)
-                return Response({"error": str(e)}, status=500)
-        return super().update(request, *args, **kwargs)
-    """
 
     def perform_create(self, serializer):
         instance = serializer.save()
