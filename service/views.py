@@ -8,7 +8,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.core.files.storage import default_storage
-from utils.supabase_client import upload_file
 
 class CategorieViewSet(viewsets.ModelViewSet):
     queryset = Categorie.objects.all()
