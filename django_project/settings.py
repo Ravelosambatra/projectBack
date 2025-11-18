@@ -148,7 +148,7 @@ AWS_STORAGE_BUCKET_NAME = os.environ.get("SUPABASE_BUCKET_NAME")
 AWS_ENDPOINT_URL = os.environ.get('SUPABASE_S3_ENDPOINT_URL')
 AWS_ENDPOINT_PUBLIC_URL = os.environ.get('SUPABASE_PUBLIC_URL')
 
-AWS_S3_CUSTOM_DOMAIN = f'{os.environ.get("SUPABASE_URL")}/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}/'
+AWS_S3_CUSTOM_DOMAIN = f'{os.environ.get("SUPABASE_URL")}/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}'
 
 # 2. Configuration S3 (Protocole)
 AWS_S3_REGION_NAME = 'eu-west-1' 
