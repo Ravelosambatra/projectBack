@@ -39,13 +39,14 @@ class TemoignageViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
         #return Response({'temoignage_valide': temoignage })
     
-    @action(detail=False, methods=['put, patch'], url_path='valider_temoin')
-    def valider_temoignage(self, request):
+    @action(detail=True, methods=['put'], url_path='valider_temoin')
+    def valider_temoignage(self, request, pk=None):
         try:
             temoignage = self.get_object()
             temoignage.valide = True
             temoignage.save()
+            return Response({"message": "Témoignage validé avec succès."})
 
-        except Exception as e :
-           print("Erreur lors de la validation :", e)
-        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print("Erreur lors de la validation :", e)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
