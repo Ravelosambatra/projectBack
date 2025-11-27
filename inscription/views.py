@@ -19,6 +19,9 @@ from rest_framework.permissions import AllowAny
 def send_confirmation_email(inscription):
     try:
         # Récupérer la catégorie et les services
+        print(f"DEBUG E-MAIL HOST: {settings.EMAIL_HOST}:{settings.EMAIL_PORT}")
+        print(f"DEBUG USER: {settings.EMAIL_HOST_USER}")
+        print(f"DEBUG FROM: {settings.DEFAULT_FROM_EMAIL}")
         categorie = inscription.categorie.nom if inscription.categorie else "N/A"
         services = inscription.service.all()
 
@@ -52,7 +55,12 @@ def send_confirmation_email(inscription):
         # Création et envoi de l'email HTML
         email = EmailMultiAlternatives(subject, "", from_email, to_email)
         email.attach_alternative(html_content, "text/html")
-        email.send(fail_silently=False)
+        result = email.send(fail_silently=False)
+
+        if result == 1:
+            print("✅ Email de confirmation envoyé avec succès !")
+        else:
+            print(f"⚠️ Échec de l'envoi de l'email, résultat: {result}.")
 
         print("Email de confirmation envoyé avec succès !")
 
