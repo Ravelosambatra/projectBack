@@ -104,8 +104,13 @@ class InscriptionViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         inscription = serializer.save()
+
+        print("🔴 Début du processus d'envoi d'e-mail (Synchrone) pour le débogage.")
+
         threading.Thread(target=send_confirmation_email, args=(inscription,)).start()
         threading.Thread(target=send_admin_notification, args=(inscription,)).start()
+
+        print("🟢 Fin du processus d'envoi d'e-mail (Synchrone).")
 
     @action(detail=False, methods=['get'], url_path='count')
     def totalInscritpion(self, request):

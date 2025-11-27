@@ -114,6 +114,7 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 #EMAIL_HOST_USER = 'stepicproduction@gmail.com'   # <-- ton email
 #EMAIL_HOST_PASSWORD = 'yurk kyhs jsqv htyl'  # <-- mot de passe d'application Gmail
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_TIMEOUT = 10
 
 
 
