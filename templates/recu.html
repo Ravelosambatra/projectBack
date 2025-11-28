@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 30px;
+            background: #f5f5f5;
+        }
+        .card {
+            margin: 0 auto;
+            width: 50%;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+        .flex {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+        }
+        h2 {
+            color: #0B5ED7;
+            margin-bottom: 5px;
+        }
+        p, li {
+            font-size: 14px;
+        }
+        .row {
+            margin: 10px 0;
+        }
+        table, tr, td, th {
+            border : 1px dashed black;
+            border-collapse: collapse;
+            padding : 10px;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+        .img-contain {
+            border : 1px black;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="flex">
+        <div class="img-contain">
+            <img src="{{ logo_url }}" alt="" width="100px" height="100px" style="border-radius: 50%;">
+        </div>
+        <div>
+            <h2>STEPIC PRODUCTION</h2>
+            <p>Ruelle n°2, Tanambao I Toliara</p>
+            <p>stepicproduction@gmail.com</p>
+            <p>034 28 899 56 - 032 93 201 29 - 033 68 538 13</p>
+        </div>
+    </div>
+    <hr style="border-style: dashed;">
+
+    <h1>****** {{ type }} ******</h1>
+
+    <div>
+        <div style="display: flex; gap: 30px;">
+            <p class="row"><strong>RECU N° :</strong> {{ recu_number  }} </p>
+            <p class="row"><strong>Date :</strong> {{ object.dateCommande|date:"d/m/Y" }} {{ object.dateInscription|date:"d/m/Y" }}</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <p class="row"><strong>FACTURE A  :</strong></p>
+            <div>
+                <p class="row">- {{ object.nomClient }} {{ object.prenomClient }}</p>
+                <p class="row">- {{ object.telephone }} {{ object.telephoneClient }}</p>
+            </div>
+        </div>
+    </div>
+
+    <table style="margin: 30px auto;">
+        <tr>
+            <th>DESCRIPTION</th>
+            <th>PRIX (en Ar)</th>
+            <th>STATUT</th>
+        </tr>
+        {% for s in services %}
+        <tr>
+            <td>{{ s.nom }}</td>
+            <td></td>
+            <td></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <p>TOTAL A PAYE : </p>
+
+    <p style="text-align: right; margin: 50px 0;">----- Merci de votre confiance ! -----</p>
+
+    <div class="footer">
+        Document généré automatiquement - {{ now|date:"d/m/Y H:i" }}
+    </div>
+</div>
+
+
+</body>
+</html>

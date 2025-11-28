@@ -15,6 +15,8 @@ import threading
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from rest_framework.permissions import AllowAny
+from django.utils.timezone import now, localtime
+from django.templatetags.static import static
 
 def send_confirmation_email(commande):
     try:
@@ -158,5 +160,20 @@ class CommandeViewSet(viewsets.ModelViewSet):
         except Exception as e:
             print("Erreur lors de la validation :", e)
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+    @action(detail=True, methods=["get"], url_path="preview")
+    def preview_recu(self, request, pk=None):
+        commande = self.get_object()
+        recu_number = f"REC-{commande.dateCommande.strftime('%Y%m%d')}-{commande.id:04d}"
+        services = commande.service.all()
+
+        return render(request, "recu.html", {
+            "type" : "RECU DE COMMANDE",
+            "object": commande,
+            "services": services,
+            "logo_url": request.build_absolute_uri(static("images/stepic_logo.jpg")),
+            "now": localtime(now()),
+            "recu_number": recu_number,
+        })
 
 

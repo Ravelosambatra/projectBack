@@ -15,6 +15,8 @@ import threading
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from rest_framework.permissions import AllowAny
+from django.utils.timezone import now, localtime
+from django.templatetags.static import static
 
 def send_confirmation_email(inscription):
     try:
@@ -215,3 +217,18 @@ class InscriptionViewSet(viewsets.ModelViewSet):
         ]
 
         return Response({"dataServices": data})
+    
+    @action(detail=True, methods=["get"], url_path="preview")
+    def preview_recu(self, request, pk=None):
+        inscription = self.get_object()
+        recu_number = f"REC-{inscription.dateInscription.strftime('%Y%m%d')}-{inscription.id:04d}"
+        services = inscription.service.all()
+
+        return render(request, "recu.html", {
+            "type" : "RECU D'INSCRIPTION",
+            "object": inscription,
+            "services": services,
+            "logo_url": request.build_absolute_uri(static("images/stepic_logo.jpg")),
+            "now": localtime(now()),
+            "recu_number": recu_number,
+        })
