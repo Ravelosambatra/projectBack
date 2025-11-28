@@ -17,6 +17,9 @@ from django.template.loader import render_to_string
 from rest_framework.permissions import AllowAny
 from django.utils.timezone import now, localtime
 from django.templatetags.static import static
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML
 
 def send_confirmation_email(inscription):
     try:
@@ -232,3 +235,24 @@ class InscriptionViewSet(viewsets.ModelViewSet):
             "now": localtime(now()),
             "recu_number": recu_number,
         })
+    
+    @action(detail=True, methods=["get"], url_path="pdf")
+    def pdf_recu(self, request, pk=None):
+        inscription = self.get_object()
+        recu_number = f"REC-{inscription.dateInscription.strftime('%Y%m%d')}-{inscription.id:04d}"
+        services = inscription.service.all()
+
+        html = render_to_string("recu.html", {
+            "type" : "RECU D'INSCRIPTION",
+            "object": inscription,
+            "services": services,
+            "logo_url": request.build_absolute_uri(static("images/stepic_logo.jpg")),
+            "now": localtime(now()),
+            "recu_number": recu_number,
+        })
+
+        pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
+
+        response = HttpResponse(pdf, content_type="application/pdf")
+        response['Content-Disposition'] = f'inline; filename="recu_{pk}.pdf"'
+        return response
