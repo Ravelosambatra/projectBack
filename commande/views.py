@@ -22,6 +22,7 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 from django.db.models import F, Func, Value
 from django.db.models.functions import ExtractYear
+from django.contrib.staticfiles import finders
 
 
 def send_confirmation_email(commande):
