@@ -12,7 +12,7 @@
     </style>
 </head>
 <body>
-    <h1>Liste des Services - {{ now }}</h1>
+    <h1>Liste des Services </h1>
 
     <table>
         <thead>
@@ -27,7 +27,13 @@
             <tr>
                 <td>{{ i.id }}</td>
                 <td>{{ i.nom }}</td>
-                <td>{{ i.categorie }}</td>
+                 <td>
+                    {% if i.categorie %}
+                        {{ i.categorie.nom }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>

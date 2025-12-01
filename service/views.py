@@ -8,6 +8,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.core.files.storage import default_storage
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML
 
 class CategorieViewSet(viewsets.ModelViewSet):
     queryset = Categorie.objects.all()
@@ -64,4 +67,20 @@ class ServiceViewSet(viewsets.ModelViewSet):
         offres = Service.objects.filter(button__iexact="S'inscrire")
         serializer = self.get_serializer(offres, many=True)
         return Response(serializer.data)
+    
+    #generation pdf de toutes les commandes
+    @action(detail=False, methods=["get"], url_path="pdf_service")
+    def pdf_inscription(self, request):
+        service = Service.objects.all()
+
+        html = render_to_string("liste_services.html", {
+            "services": service,
+        })
+
+        pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
+
+        response = HttpResponse(pdf, content_type="application/pdf")
+        response['Content-Disposition'] = f'inline; filename="commande.pdf"'
+        return response    
+
 
