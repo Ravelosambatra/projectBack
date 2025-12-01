@@ -244,7 +244,7 @@ class CommandeViewSet(viewsets.ModelViewSet):
             "recu_number": recu_number,
         })
 
-        pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
+        pdf = HTML(string=html, base_url=request.build_absolute_uri('/')).write_pdf()
 
         response = HttpResponse(pdf, content_type="application/pdf")
         response['Content-Disposition'] = f'inline; filename="recu_{pk}.pdf"'
