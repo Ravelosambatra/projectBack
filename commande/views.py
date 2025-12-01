@@ -255,7 +255,7 @@ class CommandeViewSet(viewsets.ModelViewSet):
     def pdf_inscription(self, request):
         commande = Commande.objects.all()
 
-        html = render_to_string("liste_inscriptions.html", {
+        html = render_to_string("liste_commandes.html", {
             "commandes": commande,
         })
 
