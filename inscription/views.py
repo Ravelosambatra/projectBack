@@ -288,15 +288,14 @@ class InscriptionViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=["get"], url_path="preview_liste")
     def preview_liste(self, request):
-        inscription = self.get_object()
-        idNumber = f"INS-{inscription.dateInscription.strftime('%Y%m%d')}-{inscription.id:04d}"
+        inscription = Inscription.objects.all()
+        #idNumber = f"INS-{inscription.dateInscription.strftime('%Y%m%d')}-{inscription.id:04d}"
         services = inscription.service.all()
 
         return render(request, "liste_inscriptions.html", {
             "inscriptions": inscription,
             "services": services,
             "now": localtime(now()),
-            "idNumber": idNumber,
         })
     
     #génération du pdf de toutes les inscriptions
