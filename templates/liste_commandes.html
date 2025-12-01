@@ -88,7 +88,7 @@
                 <th>Catégorie</th>
                 <th>Services</th>
                 <th>Date</th>
-                <th>Statut</th>
+                <!-- <th>Statut</th> -->
             </tr>
         </thead>
 
@@ -120,14 +120,6 @@
                 </td>
 
                 <td>{{ comm.dateCommande }}</td>
-
-                <td>
-                    {% if comm.statut %}
-                        Validé
-                    {% else %}
-                        En attente
-                    {% endif %}
-                </td>
             </tr>
             {% endfor %}
         </tbody>
