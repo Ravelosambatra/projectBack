@@ -6,115 +6,137 @@
         body {
             font-family: sans-serif;
             padding: 30px;
-            line-height: 1.3; /* Augmenté à 1.3 pour aérer le texte */
-            text-align: center; /* NOUVEAU : Centre tout le contenu par défaut */
+            line-height: 1.3; 
+            text-align: center; 
         }
-
-        /* SUPPRIMÉ : .card, car il perturbe WeasyPrint */
+        /* Conteneur principal du reçu */
+        .recu-conteneur {
+            width: 16cm; 
+            margin: 0 auto; 
+            text-align: left;
+            padding: 20px;
+            /* border: 1px solid #000; <--- Décommentez pour visualiser la taille */
+        }
 
         .flex {
-            width: 100%; /* Utilise la largeur complète */
+            width: 100%; 
             display: flex;
             justify-content: space-between;
-            align-items: top; /* Alignement en haut pour le bloc d'informations */
-            margin: 0 auto;
-            /* Ajout 1: Force l'alignement du contenu Flex à gauche dans ce bloc */
+            align-items: top;
             text-align: left; 
         }
-
-        /* Les paragraphes de l'en-tête de l'entreprise (à droite) doivent être alignés à droite */
         .flex > div:last-child {
             text-align: right; 
         }
-
+        
         h3 {
             text-align: center;
             margin: 20px 0;
         }
         
-        /* ... (Autres styles conservés) ... */
-
-        /* Le tableau doit être centré et avoir une largeur définie */
+        h4 {
+            color: #0B5ED7;
+        }
+        
+        /* Taille de police réduite pour le contenu général */
+        p, li {
+            font-size: 11px; 
+        }
+        
+        .row {
+            margin: 10px 0;
+        }
+        
+        /* Tableau et cellules */
         table {
-            margin: 30px auto; /* Centrage du tableau */
-            width: 90%; /* Nouvelle largeur fixe pour le tableau */
-            border : 1px dashed black;
+            margin: 30px 0; 
+            width: 100%; 
             border-collapse: collapse;
-            padding : 0; /* Suppression du padding sur le tableau */
-            font-size: 12px;
-            /* Règle CRUCIALE : table-layout: fixed; */
             table-layout: fixed; 
         }
-
+        
         th, td {
             border : 1px dashed black;
             border-collapse: collapse;
-            padding : 10px; /* Padding sur les cellules individuelles */
-            font-size: 12px;
-            line-height: 1.4; /* Aération du texte dans les cellules */
-            /* Alignement vertical par défaut */
+            padding : 8px; /* Ajusté */
+            font-size: 10px; /* Réduit */
+            line-height: 1.4; 
             vertical-align: top; 
-            text-align: left; /* Le contenu des cellules doit rester à gauche */
+            text-align: left; 
+        }
+        
+        th {
+            font-size: 11px;
+            text-align: center;
         }
 
-        /* Attribution des largeurs aux colonnes de ce petit tableau */
+        /* Attribution des largeurs aux colonnes du reçu */
         th:nth-child(1), td:nth-child(1) { width: 60%; } /* DESCRIPTION */
         th:nth-child(2), td:nth-child(2) { width: 20%; } /* PRIX */
         th:nth-child(3), td:nth-child(3) { width: 20%; } /* STATUT */
-</style>
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 10px;
+            color: #777;
+        }
+    </style>
 </head>
 <body>
-    <div class="flex">
-        <div class="img-contain">
-            <img src="{{ logo_url }}" alt="" width="100px" height="100px" style="border-radius: 50%;">
-        </div>
-        <div>
-            <h4>STEPIC PRODUCTION</h4>
-            <p>Ruelle n°2, Tanambao I Toliara</p>
-            <p>stepicproduction@gmail.com</p>
-            <p>034 28 899 56 - 032 93 201 29 - 033 68 538 13</p>
-        </div>
-    </div>
-    <hr style="border-style: dashed;">
+    <div class="recu-conteneur">
 
-    <h3>{{ type }}</h3>
-
-    <div>
-        <div style="display: flex; gap: 30px;">
-            <p class="row"><strong>RECU N° :</strong> {{ recu_number  }} </p>
-            <p class="row"><strong>Date :</strong> {{ object.dateCommande|date:"d/m/Y" }} {{ object.dateInscription|date:"d/m/Y" }}</p>
-        </div>
-        <div style="display: flex; gap: 10px;">
-            <p class="row"><strong>FACTURE A  :</strong></p>
+        <div class="flex">
+            <div class="img-contain">
+                <img src="{{ logo_url }}" alt="" width="100px" height="100px" style="border-radius: 50%;">
+            </div>
             <div>
-                <p class="row">- {{ object.nomClient }} {{ object.prenomClient }}</p>
-                <p class="row">- {{ object.telephone }} {{ object.telephoneClient }}</p>
+                <h4>STEPIC PRODUCTION</h4>
+                <p>Ruelle n°2, Tanambao I Toliara</p>
+                <p>stepicproduction@gmail.com</p>
+                <p>034 28 899 56 - 032 93 201 29 - 033 68 538 13</p>
             </div>
         </div>
+        <hr style="border-style: dashed;">
+    
+        <h3>{{ type }}</h3>
+    
+        <div class="infos-client">
+            <div style="display: flex; gap: 30px;">
+                <p class="row"><strong>RECU N° :</strong> {{ recu_number  }} </p>
+                <p class="row"><strong>Date :</strong> {{ object.dateCommande|date:"d/m/Y" }} {{ object.dateInscription|date:"d/m/Y" }}</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <p class="row"><strong>FACTURE A  :</strong></p>
+                <div>
+                    <p class="row">- {{ object.nomClient }} {{ object.prenomClient }}</p>
+                    <p class="row">- {{ object.telephone }} {{ object.telephoneClient }}</p>
+                </div>
+            </div>
+        </div>
+    
+        <table style="margin: 30px auto;">
+            <tr>
+                <th>DESCRIPTION</th>
+                <th>PRIX</th>
+                <th>STATUT</th>
+            </tr>
+            {% for s in services %}
+            <tr>
+                <td>{{ s.nom }}</td>
+                <td></td>
+                <td></td>
+            </tr>
+            {% endfor %}
+        </table>
+    
+        <p>TOTAL A PAYE : </p>
+    
+        <p style="text-align: right; margin: 50px 0;">----- Merci de votre confiance ! -----</p>
+    
+        <div class="footer">
+            Document généré automatiquement - {{ now|date:"d/m/Y H:i" }}
+        </div>
     </div>
-
-    <table style="margin: 30px auto;">
-        <tr>
-            <th>DESCRIPTION</th>
-            <th>PRIX</th>
-            <th>STATUT</th>
-        </tr>
-        {% for s in services %}
-        <tr>
-            <td>{{ s.nom }}</td>
-            <td></td>
-            <td></td>
-        </tr>
-        {% endfor %}
-    </table>
-
-    <p>TOTAL A PAYE : </p>
-
-    <p style="text-align: right; margin: 50px 0;">----- Merci de votre confiance ! -----</p>
-
-    <div class="footer">
-        Document généré automatiquement - {{ now|date:"d/m/Y H:i" }}
-    </div>
-
 </body>
 </html>
