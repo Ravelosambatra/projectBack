@@ -6,60 +6,64 @@
         body {
             font-family: sans-serif;
             padding: 30px;
-            line-height: 10px;
-            /* background: #f5f5f5; */
+            line-height: 1.3; /* Augmenté à 1.3 pour aérer le texte */
+            text-align: center; /* NOUVEAU : Centre tout le contenu par défaut */
         }
-        .card {
-            margin: 0 auto;
-            background: #fff;
-            width: 40%;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
-        }
+
+        /* SUPPRIMÉ : .card, car il perturbe WeasyPrint */
+
         .flex {
-            width: 100%;
+            width: 100%; /* Utilise la largeur complète */
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: top; /* Alignement en haut pour le bloc d'informations */
+            margin: 0 auto;
+            /* Ajout 1: Force l'alignement du contenu Flex à gauche dans ce bloc */
+            text-align: left; 
         }
+
+        /* Les paragraphes de l'en-tête de l'entreprise (à droite) doivent être alignés à droite */
+        .flex > div:last-child {
+            text-align: right; 
+        }
+
         h3 {
             text-align: center;
             margin: 20px 0;
         }
-        h4 {
-            color: #0B5ED7;
-        }
-        p, li {
-            font-size: 12px;
-        }
-        .row {
-            margin: 10px 0;
-        }
-        table, tr, td, th {
+        
+        /* ... (Autres styles conservés) ... */
+
+        /* Le tableau doit être centré et avoir une largeur définie */
+        table {
+            margin: 30px auto; /* Centrage du tableau */
+            width: 90%; /* Nouvelle largeur fixe pour le tableau */
             border : 1px dashed black;
             border-collapse: collapse;
-            padding : 10px;
+            padding : 0; /* Suppression du padding sur le tableau */
             font-size: 12px;
-            width: 100%;
+            /* Règle CRUCIALE : table-layout: fixed; */
+            table-layout: fixed; 
         }
-        td {
-            line-height: normal;
-        }
-        .footer {
-            margin-top: 40px;
-            text-align: center;
+
+        th, td {
+            border : 1px dashed black;
+            border-collapse: collapse;
+            padding : 10px; /* Padding sur les cellules individuelles */
             font-size: 12px;
-            color: #777;
+            line-height: 1.4; /* Aération du texte dans les cellules */
+            /* Alignement vertical par défaut */
+            vertical-align: top; 
+            text-align: left; /* Le contenu des cellules doit rester à gauche */
         }
-        .img-contain {
-            border : 1px black;
-        }
-    </style>
+
+        /* Attribution des largeurs aux colonnes de ce petit tableau */
+        th:nth-child(1), td:nth-child(1) { width: 60%; } /* DESCRIPTION */
+        th:nth-child(2), td:nth-child(2) { width: 20%; } /* PRIX */
+        th:nth-child(3), td:nth-child(3) { width: 20%; } /* STATUT */
+</style>
 </head>
 <body>
-
-<div class="card">
     <div class="flex">
         <div class="img-contain">
             <img src="{{ logo_url }}" alt="" width="100px" height="100px" style="border-radius: 50%;">
@@ -111,8 +115,6 @@
     <div class="footer">
         Document généré automatiquement - {{ now|date:"d/m/Y H:i" }}
     </div>
-</div>
-
 
 </body>
 </html>
