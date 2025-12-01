@@ -85,6 +85,19 @@
             font-size: 10px;
             color: #777;
         }
+
+        .img-contain img {
+            /* Forcer la largeur et la hauteur en CSS */
+            width: 100px !important; 
+            height: 100px !important; 
+            
+            /* Assure que l'image reste dans ses dimensions sans déformer l'élément parent */
+            max-width: 100px;
+            max-height: 100px;
+            
+            /* Conserver le style de bordure (s'il était en ligne) */
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body>
@@ -92,7 +105,7 @@
 
         <div class="flex">
             <div class="img-contain">
-                <img src="{{ logo_url }}" alt="" width="100px" height="100px" style="border-radius: 50%;">
+                <img src="{{ logo_url }}" alt="">
             </div>
             <div>
                 <h4>STEPIC PRODUCTION</h4>
