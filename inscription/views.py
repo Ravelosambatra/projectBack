@@ -22,6 +22,7 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 from django.db.models import F, Func, Value
 from django.db.models.functions import ExtractYear
+from django.contrib.staticfiles import finders
 
 
 def send_confirmation_email(inscription):
@@ -301,11 +302,21 @@ class InscriptionViewSet(viewsets.ModelViewSet):
         recu_number = f"REC-{inscription.dateInscription.strftime('%Y%m%d')}-{inscription.id:04d}"
         services = inscription.service.all()
 
+        logo_path_local = finders.find("images/stepic_logo.jpg")
+
+        if logo_path_local:
+        # Remplace les backslashes par des slashes pour le format d'URL
+            logo_url_for_pdf = 'file://' + logo_path_local.replace('\\', '/')
+        else:
+        # Solution de repli, même si elle a échoué via HTTP
+            logo_url_for_pdf = request.build_absolute_uri(static("images/stepic_logo.jpg"))
+
         html = render_to_string("recu.html", {
             "type" : "RECU D'INSCRIPTION",
             "object": inscription,
             "services": services,
-            "logo_url": request.build_absolute_uri(static("images/stepic_logo.jpg")),
+            #"logo_url": request.build_absolute_uri(static("images/stepic_logo.jpg")),
+            "logo_url": logo_url_for_pdf,
             "now": localtime(now()),
             "recu_number": recu_number,
         })
