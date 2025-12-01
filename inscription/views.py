@@ -290,11 +290,11 @@ class InscriptionViewSet(viewsets.ModelViewSet):
     def preview_liste(self, request):
         inscription = Inscription.objects.all()
         #idNumber = f"INS-{inscription.dateInscription.strftime('%Y%m%d')}-{inscription.id:04d}"
-        services = inscription.service.all()
+        #services = inscription.service.all()
 
         return render(request, "liste_inscriptions.html", {
             "inscriptions": inscription,
-            "services": services,
+            #"services": services,
             "now": localtime(now()),
         })
     
