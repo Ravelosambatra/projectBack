@@ -4,13 +4,65 @@
     <meta charset="UTF-8">
     <title>Liste des inscriptions</title>
     <style>
+        /* Styles généraux */
         body { font-family: Arial, sans-serif; margin: 20px; }
         h1 { margin-bottom: 5px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 8px; border: 1px solid #444; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px;
+            /* Règle CRUCIALE : table-layout: fixed; */
+            table-layout: fixed; 
+        }
+        th, td { 
+            padding: 5px; /* Réduit le padding pour gagner de la place */
+            border: 1px solid #444; 
+            /* Règle pour empêcher le texte de déborder */
+            overflow: hidden; 
+            word-wrap: break-word; 
+        }
         th { background: #eee; }
-        .services { font-size: 13px; color: #333; }
+        
+        /* ATTRIBUTION DES LARGEURS AUX COLONNES (en pourcentage de 100%) */
+        
+        /* 1. ID */
+        th:nth-child(1), td:nth-child(1) { width: 4%; } 
+
+        /* 2. Nom complet */
+        th:nth-child(2), td:nth-child(2) { width: 18%; } /* Plus de place pour les noms */
+
+        /* 3. Email */
+        th:nth-child(3), td:nth-child(3) { width: 22%; } /* Assez de place pour l'adresse complète */
+
+        /* 4. Téléphone */
+        th:nth-child(4), td:nth-child(4) { width: 10%; } 
+
+        /* 5. Catégorie */
+        th:nth-child(5), td:nth-child(5) { width: 10%; } 
+
+        /* 6. Services (la colonne la plus difficile, contrainte à 20%) */
+        .services, th:nth-child(6), td:nth-child(6) { 
+            width: 20%; 
+            font-size: 10px; 
+            white-space: normal; 
+        }
+        
+        /* 7. Date */
+        th:nth-child(7), td:nth-child(7) { width: 8%; } 
+
+        /* 8. Statut */
+        th:nth-child(8), td:nth-child(8) { width: 8%; } 
+        
+        /* Styles d'impression spécifiques pour WeasyPrint */
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+        tr {
+            page-break-inside: avoid;
+        }
     </style>
+
 </head>
 
 <body>
