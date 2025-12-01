@@ -4,12 +4,46 @@
     <meta charset="UTF-8">
     <title>Liste des inscriptions</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
+        /* Styles généraux */
+        body { 
+            font-family: Arial, sans-serif; 
+            /* Important pour le PDF: Nous allons définir la taille de page via @page */
+            margin: 20px; 
+        }
         h1 { margin-bottom: 5px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px;
+            /* Ajout 1: Assure une meilleure gestion des largeurs de colonnes */
+            table-layout: fixed; 
+        }
         th, td { padding: 8px; border: 1px solid #444; }
         th { background: #eee; }
-        .services { font-size: 13px; color: #333; }
+        
+        /* Styles pour la colonne "Services" (class="services") */
+        .services { 
+            /* Ajustez cette valeur. 150px est un bon point de départ. */
+            width: 150px; 
+            font-size: 10px; /* Réduit la taille de la police pour gagner de la place */
+            color: #333;
+            /* Ajout 2: Force le texte à sauter à la ligne */
+            white-space: normal; 
+            /* Ajout 3: Permet même de couper les mots très longs si nécessaire */
+            word-break: break-word; 
+        }
+
+        /* Styles d'impression spécifiques pour WeasyPrint */
+        @page {
+            /* Taille de page standard et marges. WeasyPrint utilise cette règle. */
+            size: A4;
+            margin: 1cm;
+        }
+        
+        /* Empêche les lignes de données d'être coupées entre deux pages */
+        tr {
+            page-break-inside: avoid;
+        }
     </style>
 </head>
 
