@@ -20,6 +20,9 @@ from django.templatetags.static import static
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML
+from django.db.models import F, Func, Value
+from django.db.models.functions import ExtractYear
+
 
 def send_confirmation_email(inscription):
     try:
@@ -115,6 +118,7 @@ class InscriptionViewSet(viewsets.ModelViewSet):
     serializer_class = InscriptionSerializer
     permission_classes = [AllowAny]
 
+    #envoie de l'email juste après l'inscription
     def perform_create(self, serializer):
         inscription = serializer.save()
 
@@ -130,6 +134,7 @@ class InscriptionViewSet(viewsets.ModelViewSet):
         nb_total = Inscription.objects.count()
         return Response({'total_inscription': nb_total })
     
+    #retourner l'évolution des inscriptions par mois
     @action(detail=False, methods=['get'], url_path='by_month')
     def evolution_par_mois(self, request):
         annee = request.query_params.get('annee')
@@ -159,6 +164,48 @@ class InscriptionViewSet(viewsets.ModelViewSet):
 
         return Response({"annee": annee, "inscriptions": data})
     
+    #api pour retourner les dates qui a eu lieu pendant les inscriptions
+    @action(detail=False, methods=['get'], url_path='available_years')
+    def available_years(self, request):
+        """
+        Retourne toutes les années où il y a eu au moins une inscription.
+        """
+        years = (
+            Inscription.objects
+            .annotate(year=ExtractYear('dateInscription'))
+            .values_list('year', flat=True)
+            .distinct()
+            .order_by('-year')
+        )
+        return Response({"years": list(years)})
+    
+    #retourner les listes des inscriptions par an
+    @action(detail=False, methods=['get'], url_path='by_year')
+    def filter_by_year(self, request):
+        """
+        Retourne toutes les inscriptions pour une année donnée.
+        Paramètre GET : ?annee=2025
+        """
+        annee = request.query_params.get('annee')
+
+        if annee is None:
+            annee = timezone.now().year
+        else:
+            try:
+                annee = int(annee)
+            except ValueError:
+                return Response({"error": "Année invalide"}, status=400)
+
+        inscriptions = Inscription.objects.filter(dateInscription__year=annee)
+
+        # Sérialisation
+        serializer = self.get_serializer(inscriptions, many=True)
+        return Response({
+            "annee": annee,
+            "inscriptions": serializer.data
+        })
+    
+    #liste des inscriptions par service
     @action(detail=False, methods=['get'], url_path='by_service')
     def par_service(self, request):
         services_concerne = Service.objects.filter(button__iexact="S'inscrire")
@@ -177,6 +224,7 @@ class InscriptionViewSet(viewsets.ModelViewSet):
 
         return Response(data)
     
+    #validation d'une inscription
     @action(detail=True, methods=['patch', 'put', 'post'], url_path='valider')
     def valider_commande(self, request, pk=None):
         try:
@@ -195,6 +243,7 @@ class InscriptionViewSet(viewsets.ModelViewSet):
             print("Erreur lors de la validation :", e)
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
+    #listes des inscriptions par service spécifique
     @action(detail=False, methods=['get'], url_path='count-by-service')
     def count_by_service(self, request):
 
@@ -221,6 +270,7 @@ class InscriptionViewSet(viewsets.ModelViewSet):
 
         return Response({"dataServices": data})
     
+    #prévisualiser le réçu d'inscription
     @action(detail=True, methods=["get"], url_path="preview")
     def preview_recu(self, request, pk=None):
         inscription = self.get_object()
@@ -236,6 +286,20 @@ class InscriptionViewSet(viewsets.ModelViewSet):
             "recu_number": recu_number,
         })
     
+    @action(detail=False, methods=["get"], url_path="preview_liste")
+    def preview_liste(self, request, pk=None):
+        inscription = self.get_object()
+        idNumber = f"REC-{inscription.dateInscription.strftime('%Y%m%d')}-{inscription.id:04d}"
+        services = inscription.service.all()
+
+        return render(request, "liste_inscriptions.html", {
+            "inscriptions": inscription,
+            "services": services,
+            "now": localtime(now()),
+            "idNumber": idNumber,
+        })
+    
+    #génération du pdf de toutes les inscriptions
     @action(detail=True, methods=["get"], url_path="pdf")
     def pdf_recu(self, request, pk=None):
         inscription = self.get_object()

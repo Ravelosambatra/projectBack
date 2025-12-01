@@ -20,6 +20,9 @@ from django.templatetags.static import static
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML
+from django.db.models import F, Func, Value
+from django.db.models.functions import ExtractYear
+
 
 def send_confirmation_email(commande):
     try:
@@ -107,16 +110,19 @@ class CommandeViewSet(viewsets.ModelViewSet):
     serializer_class = CommandeSerializer
     permission_classes = [AllowAny]
 
+    #envoie de mail juste après la commande
     def perform_create(self, serializer):
         commande = serializer.save()
         threading.Thread(target=send_confirmation_email, args=(commande,)).start()
         threading.Thread(target=send_admin_notification, args=(commande,)).start()
 
+    #nombres total des commandes
     @action(detail=False, methods=['get'], url_path='count')
     def total(self, request):
         nb_total = Commande.objects.count()
         return Response({'total_commande': nb_total})
     
+    #listes des commandes par mois
     @action(detail=False, methods=['get'], url_path='by_month')
     def par_mois(self, request):
         annee = request.query_params.get('annee')
@@ -146,6 +152,48 @@ class CommandeViewSet(viewsets.ModelViewSet):
 
         return Response({"annee": annee, "commandes": data})
     
+     #api pour retourner les dates qui a eu lieu pendant les commandes
+    @action(detail=False, methods=['get'], url_path='available_years')
+    def available_years(self, request):
+        """
+        Retourne toutes les années où il y a eu au moins une inscription.
+        """
+        years = (
+            Commande.objects
+            .annotate(year=ExtractYear('dateCommande'))
+            .values_list('year', flat=True)
+            .distinct()
+            .order_by('-year')
+        )
+        return Response({"years": list(years)})
+
+    #listes des commandes par an
+    @action(detail=False, methods=['get'], url_path='by_year')
+    def filter_by_year(self, request):
+        """
+        Retourne toutes les inscriptions pour une année donnée.
+        Paramètre GET : ?annee=2025
+        """
+        annee = request.query_params.get('annee')
+
+        if annee is None:
+            annee = timezone.now().year
+        else:
+            try:
+                annee = int(annee)
+            except ValueError:
+                return Response({"error": "Année invalide"}, status=400)
+
+        commandes = Commande.objects.filter(dateCommande__year=annee)
+
+        # Sérialisation
+        serializer = self.get_serializer(commandes, many=True)
+        return Response({
+            "annee": annee,
+            "commandes": serializer.data
+        })
+    
+    #validation d'une commande
     @action(detail=True, methods=['patch', 'put', 'post'], url_path='valider')
     def valider_commande(self, request, pk=None):
         try:
@@ -163,7 +211,8 @@ class CommandeViewSet(viewsets.ModelViewSet):
         except Exception as e:
             print("Erreur lors de la validation :", e)
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+    #previsualisation de reçu d'une commande    
     @action(detail=True, methods=["get"], url_path="preview")
     def preview_recu(self, request, pk=None):
         commande = self.get_object()
@@ -179,6 +228,7 @@ class CommandeViewSet(viewsets.ModelViewSet):
             "recu_number": recu_number,
         })
     
+    #génération de pdf d'une commande
     @action(detail=True, methods=["get"], url_path="pdf")
     def pdf_recu(self, request, pk=None):
         commande = self.get_object()
