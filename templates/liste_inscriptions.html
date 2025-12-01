@@ -2,45 +2,77 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Liste des Inscriptions</title>
+    <title>Liste des inscriptions</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { margin-bottom: 5px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        img { margin-bottom: 20px; }
+        th, td { padding: 8px; border: 1px solid #444; }
+        th { background: #eee; }
+        .services { font-size: 13px; color: #333; }
     </style>
 </head>
+
 <body>
-    <h1>Liste des Inscriptions - {{ now }}</h1>
+
+    <h1>Liste des inscriptions</h1>
+    <p>Généré le : {{ now }}</p>
 
     <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Nom</th>
-                <th>Prenom</th>
+                <th>Nom complet</th>
                 <th>Email</th>
-                <th>Tel</th>
-                <th>Service</th>
-                <th>Categorie</th>
+                <th>Téléphone</th>
+                <th>Catégorie</th>
+                <th>Services</th>
                 <th>Date</th>
+                <th>Statut</th>
             </tr>
         </thead>
+
         <tbody>
-            {% for i in inscriptions %}
+            {% for ins in inscriptions %}
             <tr>
-                <td>INS - {{ i.id }}</td>
-                <td>{{ i.nomClient }}</td>
-                <td>{{ i.prenomClient }}</td>
-                <td>{{ i.emailClient }}</td>
-                <td>{{ i.telephoneClient }}</td>
-                <td>{{ i.service }}</td>
-                <td>{{ i.categorie }}</td>
-                <td>{{ i.dateInscription }}</td>
+                <td>{{ ins.id }}</td>
+
+                <td>{{ ins.nomClient }} {{ ins.prenomClient }}</td>
+
+                <td>{{ ins.emailClient }}</td>
+
+                <td>{{ ins.telephoneClient|default:"-" }}</td>
+
+                <td>
+                    {% if ins.categorie %}
+                        {{ ins.categorie.nom }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+
+                <td class="services">
+                    {% for s in ins.service.all %}
+                        • {{ s.nom }}<br>
+                    {% empty %}
+                        Aucun service
+                    {% endfor %}
+                </td>
+
+                <td>{{ ins.dateInscription }}</td>
+
+                <td>
+                    {% if ins.statut %}
+                        Validé
+                    {% else %}
+                        En attente
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
+
     </table>
+
 </body>
 </html>
