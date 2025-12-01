@@ -14,14 +14,23 @@
             /* Règle CRUCIALE : table-layout: fixed; */
             table-layout: fixed; 
         }
-        th, td { 
-            padding: 5px; /* Réduit le padding pour gagner de la place */
+       th, td { 
+            padding: 5px; 
             border: 1px solid #444; 
-            /* Règle pour empêcher le texte de déborder */
             overflow: hidden; 
             word-wrap: break-word; 
-        }
+            /* AJOUT CLÉ : Réduction de la taille de police pour gagner de l'espace */
+            font-size: 10px; /* Essayez 10px ou même 9px si nécessaire (par exemple, 9pt) */
+         }
         th { background: #eee; }
+    
+    /* ... (Attribution des largeurs aux colonnes 1% à 8%) ... */
+    
+    /* Styles pour les titres (TH) si vous voulez les garder un peu plus grands */
+        th {
+            font-size: 11px; /* Laissez les titres un peu plus grands pour la clarté */
+            text-align: center;
+        }
         
         /* ATTRIBUTION DES LARGEURS AUX COLONNES (en pourcentage de 100%) */
         
