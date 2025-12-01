@@ -249,5 +249,20 @@ class CommandeViewSet(viewsets.ModelViewSet):
         response = HttpResponse(pdf, content_type="application/pdf")
         response['Content-Disposition'] = f'inline; filename="recu_{pk}.pdf"'
         return response
+    
+    #generation pdf de toutes les commandes
+    @action(detail=False, methods=["get"], url_path="pdf_commande")
+    def pdf_inscription(self, request):
+        commande = Commande.objects.all()
+
+        html = render_to_string("liste_inscriptions.html", {
+            "commandes": commande,
+        })
+
+        pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
+
+        response = HttpResponse(pdf, content_type="application/pdf")
+        response['Content-Disposition'] = f'inline; filename="commande.pdf"'
+        return response    
 
 

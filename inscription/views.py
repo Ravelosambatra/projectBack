@@ -289,16 +289,12 @@ class InscriptionViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], url_path="preview_liste")
     def preview_liste(self, request):
         inscription = Inscription.objects.all()
-        #idNumber = f"INS-{inscription.dateInscription.strftime('%Y%m%d')}-{inscription.id:04d}"
-        #services = inscription.service.all()
 
         return render(request, "liste_inscriptions.html", {
             "inscriptions": inscription,
-            #"services": services,
-            "now": localtime(now()),
         })
     
-    #génération du pdf de toutes les inscriptions
+    #génération d'un reçu de chaque inscription
     @action(detail=True, methods=["get"], url_path="pdf")
     def pdf_recu(self, request, pk=None):
         inscription = self.get_object()
@@ -318,4 +314,19 @@ class InscriptionViewSet(viewsets.ModelViewSet):
 
         response = HttpResponse(pdf, content_type="application/pdf")
         response['Content-Disposition'] = f'inline; filename="recu_{pk}.pdf"'
+        return response
+    
+    #generation pdf de toutes les inscriptions
+    @action(detail=False, methods=["get"], url_path="pdf_inscription")
+    def pdf_inscription(self, request):
+        inscription = Inscription.objects.all()
+
+        html = render_to_string("liste_inscriptions.html", {
+            "inscriptions": inscription,
+        })
+
+        pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
+
+        response = HttpResponse(pdf, content_type="application/pdf")
+        response['Content-Disposition'] = f'inline; filename="inscription.pdf"'
         return response
