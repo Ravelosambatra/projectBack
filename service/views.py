@@ -80,7 +80,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
         pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
 
         response = HttpResponse(pdf, content_type="application/pdf")
-        response['Content-Disposition'] = f'inline; filename="commande.pdf"'
+        response['Content-Disposition'] = f'inline; filename="service.pdf"'
         return response    
 
 
